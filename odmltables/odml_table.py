@@ -694,10 +694,25 @@ class OdmlTable(object):
                     raise ValueError('Key "%s" is missing in property dictionary %s'
                                      '' % (filter_key, dict_prop))
 
+                # #fix-option1 - According to Fix filtering for property values #124
+                # if comparison_func(dict_prop[filter_key], filter_value):
+                #     keep_property = True
+                # elif type(dict_prop[filter_key]) == list and len(dict_prop[filter_key]) == 1:
+                #     keep_property = comparison_func(dict_prop[filter_key][0], filter_value)
+                # else:
+                #     keep_property = False
+
+                # fix-option2
                 if comparison_func(dict_prop[filter_key], filter_value):
                     keep_property = True
                 else:
-                    keep_property = False
+                    if type(dict_prop[filter_key]) == list:
+                        for element in dict_prop[filter_key]:
+                            keep_property = comparison_func(element, filter_value)
+                            if keep_property:
+                                break
+                    else:
+                        keep_property = False
 
                 if mode == 'or' and keep_property:
                     break
